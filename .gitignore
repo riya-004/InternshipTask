@@ -1,0 +1,8 @@
+__pycache__/
+*.pyc
+.venv/
+venv/
+.env
+ocr/uploads/
+webscraping/static/charts/
+.DS_Store

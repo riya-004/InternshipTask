@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Charts · Product Explorer{% endblock %}
+{% block content %}
+{% if missing_data %}
+  <div class="notice">No data yet. Run <code>python scraper.py</code> first, then reload this page.</div>
+{% else %}
+  <h2>Product trends</h2>
+  <div class="charts">
+    {% for c in charts %}
+      <img src="{{ url_for('static', filename='charts/' ~ c) }}" alt="{{ c.replace('_', ' ').replace('.png', '') }}">
+    {% endfor %}
+  </div>
+{% endif %}
+{% endblock %}

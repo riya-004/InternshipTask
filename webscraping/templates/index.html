@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block content %}
+{% if missing_data %}
+  <div class="notice">No data yet. Run <code>python scraper.py</code> first to scrape products, then reload this page.</div>
+{% else %}
+  <form class="filters" method="get">
+    <label>Search
+      <input type="text" name="q" value="{{ args.get('q', '') }}" placeholder="title, description, category">
+    </label>
+    <label>Min price
+      <input type="number" step="0.01" name="min_price" value="{{ args.get('min_price', '') }}" style="width:90px">
+    </label>
+    <label>Max price
+      <input type="number" step="0.01" name="max_price" value="{{ args.get('max_price', '') }}" style="width:90px">
+    </label>
+    <label>Min rating
+      <select name="min_rating">
+        <option value="">Any</option>
+        {% for r in range(1, 6) %}
+          <option value="{{ r }}" {{ 'selected' if args.get('min_rating') == r|string }}>{{ r }}+ stars</option>
+        {% endfor %}
+      </select>
+    </label>
+    <label>Sort by
+      <select name="sort">
+        {% for val, label in [('title','Title A-Z'),('price_asc','Price: low to high'),('price_desc','Price: high to low'),('rating','Rating')] %}
+          <option value="{{ val }}" {{ 'selected' if args.get('sort') == val }}>{{ label }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <button type="submit">Search</button>
+  </form>
+
+  <p class="meta">{{ total }} product{{ '' if total == 1 else 's' }} found</p>
+
+  <div class="grid">
+    {% for p in products %}
+      <div class="card">
+        <h3><a href="{{ p['url'] }}" target="_blank" rel="noopener" style="color:inherit;text-decoration:none">{{ p['title'] }}</a></h3>
+        <div class="price">£{{ '%.2f' % p['price'] }}</div>
+        <div class="stars">{{ '★' * (p['rating'] or 0) }}{{ '☆' * (5 - (p['rating'] or 0)) }}</div>
+        <div class="meta">{{ p['availability'] }}{% if p['category'] %} · {{ p['category'] }}{% endif %}</div>
+        {% if p['description'] %}
+          <div class="desc">{{ p['description'][:140] }}{{ '…' if p['description']|length > 140 }}</div>
+        {% endif %}
+      </div>
+    {% else %}
+      <p>No products match your search.</p>
+    {% endfor %}
+  </div>
+
+  {% if pages > 1 %}
+  <div class="pager">
+    {% if page > 1 %}<a href="{{ url_for('index', page=page-1, **args) }}">← Previous</a>{% endif %}
+    <span>Page {{ page }} of {{ pages }}</span>
+    {% if page < pages %}<a href="{{ url_for('index', page=page+1, **args) }}">Next →</a>{% endif %}
+  </div>
+  {% endif %}
+{% endif %}
+{% endblock %}
