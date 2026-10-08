@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Image to Text (OCR)</title>
+  <style>
+    :root { --bg:#fffaf0; --ink:#1c1c1c; --accent:#2336b8; --line:#eadfc9; }
+    * { box-sizing: border-box; }
+    body { margin:0; font-family: system-ui, -apple-system, "Segoe UI", sans-serif; background:var(--bg); color:var(--ink); }
+    main { max-width:1000px; margin:32px auto; padding:0 20px; }
+    h1 { margin:0 0 4px; }
+    .sub { color:#666; margin-bottom:22px; }
+    form { background:#fff; border:1px solid var(--line); border-radius:10px; padding:18px; display:flex; gap:12px; flex-wrap:wrap; align-items:center; }
+    input[type=file] { flex:1; min-width:220px; }
+    button { background:var(--accent); color:#fff; border:0; border-radius:6px; padding:9px 18px; font:inherit; font-weight:600; cursor:pointer; }
+    .error { background:#fde8e8; border:1px solid #f4b4b4; padding:12px 16px; border-radius:8px; margin-top:16px; }
+    .results { display:grid; grid-template-columns:1fr 1fr; gap:18px; margin-top:22px; }
+    @media (max-width:760px) { .results { grid-template-columns:1fr; } }
+    .panel { background:#fff; border:1px solid var(--line); border-radius:10px; padding:14px; }
+    .panel h2 { font-size:1rem; margin:0 0 10px; }
+    img { max-width:100%; border-radius:6px; }
+    textarea { width:100%; min-height:260px; font:inherit; border:1px solid #ccc; border-radius:6px; padding:10px; }
+    .meta { color:#666; font-size:.85rem; margin-top:8px; }
+  </style>
+</head>
+<body>
+<main>
+  <h1>Image to Text</h1>
+  <p class="sub">Upload an image or scanned document. Tesseract OCR will find the text regions and extract the text.</p>
+
+  <form method="post" enctype="multipart/form-data">
+    <input type="file" name="image" accept="image/*" required>
+    <button type="submit">Extract text</button>
+  </form>
+
+  {% if error %}<div class="error">{{ error }}</div>{% endif %}
+
+  {% if annotated %}
+  <div class="results">
+    <div class="panel">
+      <h2>Detected text regions</h2>
+      <img src="{{ url_for('uploads', filename=annotated) }}" alt="Image with detected text boxes">
+      <div class="meta">{{ regions|length }} word regions detected</div>
+    </div>
+    <div class="panel">
+      <h2>Extracted text</h2>
+      <textarea id="out" readonly>{{ text }}</textarea>
+      <div style="margin-top:10px"><button type="button" onclick="navigator.clipboard.writeText(document.getElementById('out').value)">Copy text</button></div>
+    </div>
+  </div>
+  {% endif %}
+</main>
+</body>
+</html>
